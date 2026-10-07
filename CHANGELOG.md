@@ -17,6 +17,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **DynamoDB — `NULL` attribute accepts the string `"true"`** — `{"NULL": "true"}` was refused with `Null attribute value types must have the value of true`, while AWS accepts it. It is now stored and returned as `{"NULL": true}`; any other value, `false` and `"false"` included, is still refused with AWS's message.
 - **Lambda — preserve invocation aliases in runtime context** — `Invoke` retains the requested alias or version in `invoked_function_arn`, while `function_version` remains the resolved published version. Warm workers receive invocation identity per request. Contributed by @jayjanssen.
 - **IoT — `DescribeCertificate` reports `certificateMode`** — the field was missing from the description. It is now `SNI_ONLY` for a certificate registered with `RegisterCertificateWithoutCA` and `DEFAULT` for the others, as AWS reports it. Contributed by @iot-rocket.
 ### Fixed

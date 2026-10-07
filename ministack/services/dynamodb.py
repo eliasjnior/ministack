@@ -376,9 +376,10 @@ def _validate_attribute_value(attr_name: str, value: dict, _depth: int = 1) -> t
             return error_response_json("ValidationException",
                 "One or more parameter values were invalid: BOOL value must be true or false", 400)
     elif vtype == "NULL":
-        if vval is not True:
+        if vval is not True and vval != "true":
             return error_response_json("ValidationException",
                 "One or more parameter values were invalid: Null attribute value types must have the value of true", 400)
+        value["NULL"] = True
     elif vtype == "SS":
         if not isinstance(vval, list) or not vval:
             return error_response_json("ValidationException",

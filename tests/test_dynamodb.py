@@ -4208,6 +4208,36 @@ def _raw_ddb(target: str, body: dict):
         return e.code, json.loads(e.read())
 
 
+def test_dynamodb_put_item_null_accepts_string_true(ddb):
+    name = "null-str-true"
+    _basic_table(ddb, name)
+    try:
+        code, _ = _raw_ddb("PutItem", {
+            "TableName": name,
+            "Item": {"pk": {"S": "k1"}, "gone": {"NULL": "true"}},
+        })
+        assert code == 200
+        item = ddb.get_item(TableName=name, Key={"pk": {"S": "k1"}})["Item"]
+        assert item["gone"] == {"NULL": True}
+    finally:
+        ddb.delete_table(TableName=name)
+
+
+def test_dynamodb_put_item_null_rejects_false(ddb):
+    name = "null-false"
+    _basic_table(ddb, name)
+    try:
+        for bad in (False, "false"):
+            code, body = _raw_ddb("PutItem", {
+                "TableName": name,
+                "Item": {"pk": {"S": "k1"}, "gone": {"NULL": bad}},
+            })
+            assert code == 400
+            assert "ValidationException" in body.get("__type", "")
+    finally:
+        ddb.delete_table(TableName=name)
+
+
 def test_dynamodb_transact_write_empty_rejected():
     code, body = _raw_ddb("TransactWriteItems", {"TransactItems": []})
     assert code == 400
